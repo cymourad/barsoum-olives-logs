@@ -24,8 +24,8 @@ const TreeMap = ({ onTreeSelect, selectionMode = false, selectedTreeIds = [], on
       console.log('TreeMap: Starting to load data...');
       
       // Load CSV data
-      console.log('TreeMap: Fetching CSV from /tree-map.csv');
-      const response = await fetch('/tree-map.csv');
+      console.log('TreeMap: Fetching CSV from ./tree-map.csv');
+      const response = await fetch('./tree-map.csv');
       console.log('TreeMap: CSV response status:', response.status);
       
       const csvText = await response.text();
