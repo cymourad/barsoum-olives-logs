@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { OilProcessingBatch, Tree } from '../types';
-import { supabase } from '../lib/supabase';
-import TreeMap from '../components/TreeMap';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { OilProcessingBatch, Tree } from "../types";
+import { supabase } from "../lib/supabase";
+import TreeMap from "../components/TreeMap";
 
 const OilProcessingBatchesPage = () => {
   const [batches, setBatches] = useState<OilProcessingBatch[]>([]);
-  const [trees, setTrees] = useState<Tree[]>([]);
+  const [_, setTrees] = useState<Tree[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedTrees, setSelectedTrees] = useState<string[]>([]);
-  const [batchDate, setBatchDate] = useState(new Date().toISOString().split('T')[0]);
+  const [batchDate, setBatchDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
   useEffect(() => {
     loadData();
@@ -20,14 +22,14 @@ const OilProcessingBatchesPage = () => {
     try {
       const [batchesResponse, treesResponse] = await Promise.all([
         supabase
-          .from('oil_processing_batches')
-          .select('*')
-          .order('date', { ascending: false }),
+          .from("oil_processing_batches")
+          .select("*")
+          .order("date", { ascending: false }),
         supabase
-          .from('trees')
-          .select('*')
-          .order('position_row', { ascending: true })
-          .order('position_col', { ascending: true })
+          .from("trees")
+          .select("*")
+          .order("position_row", { ascending: true })
+          .order("position_col", { ascending: true }),
       ]);
 
       if (batchesResponse.error) throw batchesResponse.error;
@@ -36,7 +38,7 @@ const OilProcessingBatchesPage = () => {
       setBatches(batchesResponse.data || []);
       setTrees(treesResponse.data || []);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error("Error loading data:", error);
     } finally {
       setLoading(false);
     }
@@ -46,41 +48,41 @@ const OilProcessingBatchesPage = () => {
     if (selectedTrees.length === 0) return;
 
     try {
-      const { error } = await supabase
-        .from('oil_processing_batches')
-        .insert({
-          date: batchDate,
-          tree_ids: selectedTrees,
-        });
+      const { error } = await supabase.from("oil_processing_batches").insert({
+        date: batchDate,
+        tree_ids: selectedTrees,
+      });
 
       if (error) throw error;
 
       setShowCreateForm(false);
       setSelectedTrees([]);
-      setBatchDate(new Date().toISOString().split('T')[0]);
+      setBatchDate(new Date().toISOString().split("T")[0]);
       loadData();
     } catch (error) {
-      console.error('Error creating batch:', error);
+      console.error("Error creating batch:", error);
     }
   };
 
   const toggleTreeSelection = (treeId: string) => {
-    setSelectedTrees(prev => 
-      prev.includes(treeId) 
-        ? prev.filter(id => id !== treeId)
+    setSelectedTrees((prev) =>
+      prev.includes(treeId)
+        ? prev.filter((id) => id !== treeId)
         : [...prev, treeId]
     );
   };
 
-  const getTreeLabel = (treeId: string) => {
-    const tree = trees.find(t => t.id === treeId);
-    return tree ? `Tree ${tree.position_row + 1}-${tree.position_col + 1}` : treeId;
-  };
+  // const getTreeLabel = (treeId: string) => {
+  //   const tree = trees.find(t => t.id === treeId);
+  //   return tree ? `Tree ${tree.position_row + 1}-${tree.position_col + 1}` : treeId;
+  // };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
-        <div className="text-lg text-gray-600">Loading oil processing batches...</div>
+        <div className="text-lg text-gray-600">
+          Loading oil processing batches...
+        </div>
       </div>
     );
   }
@@ -88,18 +90,19 @@ const OilProcessingBatchesPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-800">Oil Processing Batches</h1>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="btn-primary"
-        >
+        <h1 className="text-3xl font-bold text-gray-800">
+          Oil Processing Batches
+        </h1>
+        <button onClick={() => setShowCreateForm(true)} className="btn-primary">
           Create New Batch
         </button>
       </div>
 
       {batches.length === 0 ? (
         <div className="card text-center py-8">
-          <div className="text-gray-500 mb-4">No oil processing batches created yet.</div>
+          <div className="text-gray-500 mb-4">
+            No oil processing batches created yet.
+          </div>
           <button
             onClick={() => setShowCreateForm(true)}
             className="btn-primary"
@@ -138,13 +141,25 @@ const OilProcessingBatchesPage = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">Create Oil Processing Batch</h3>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Create Oil Processing Batch
+                </h3>
                 <button
                   onClick={() => setShowCreateForm(false)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -161,7 +176,9 @@ const OilProcessingBatchesPage = () => {
                 </div>
 
                 <div>
-                  <label className="form-label">Select Trees ({selectedTrees.length} selected)</label>
+                  <label className="form-label">
+                    Select Trees ({selectedTrees.length} selected)
+                  </label>
                   <div className="border border-gray-300 rounded-md p-3">
                     <TreeMap
                       selectionMode={true}

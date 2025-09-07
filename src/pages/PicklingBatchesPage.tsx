@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { PicklingBatch, Tree } from '../types';
-import { supabase } from '../lib/supabase';
-import { useDebouncedInput } from '../hooks/useDebounce';
-import TreeMap from '../components/TreeMap';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { PicklingBatch, Tree } from "../types";
+import { supabase } from "../lib/supabase";
+import { useDebouncedInput } from "../hooks/useDebounce";
+import TreeMap from "../components/TreeMap";
 
 const PicklingBatchesPage = () => {
   const [batches, setBatches] = useState<PicklingBatch[]>([]);
-  const [trees, setTrees] = useState<Tree[]>([]);
+  const [_, setTrees] = useState<Tree[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split("T")[0],
     tree_ids: [] as string[],
-    variety: '',
-    ripeness: '',
-    notes: '',
-    supplier: '',
-    salt_percentage: '',
+    variety: "",
+    ripeness: "",
+    notes: "",
+    supplier: "",
+    salt_percentage: "",
     bruised: false,
-    recipe_notes: '',
+    recipe_notes: "",
   });
 
   // Debounced inputs for text fields
@@ -28,25 +28,25 @@ const PicklingBatchesPage = () => {
     (value) => setFormData({ ...formData, variety: value }),
     500
   );
-  
+
   const ripenessInput = useDebouncedInput(
     formData.ripeness,
     (value) => setFormData({ ...formData, ripeness: value }),
     500
   );
-  
+
   const supplierInput = useDebouncedInput(
     formData.supplier,
     (value) => setFormData({ ...formData, supplier: value }),
     500
   );
-  
+
   const notesInput = useDebouncedInput(
     formData.notes,
     (value) => setFormData({ ...formData, notes: value }),
     500
   );
-  
+
   const recipeNotesInput = useDebouncedInput(
     formData.recipe_notes,
     (value) => setFormData({ ...formData, recipe_notes: value }),
@@ -61,14 +61,14 @@ const PicklingBatchesPage = () => {
     try {
       const [batchesResponse, treesResponse] = await Promise.all([
         supabase
-          .from('pickling_batches')
-          .select('*')
-          .order('date', { ascending: false }),
+          .from("pickling_batches")
+          .select("*")
+          .order("date", { ascending: false }),
         supabase
-          .from('trees')
-          .select('*')
-          .order('position_row', { ascending: true })
-          .order('position_col', { ascending: true })
+          .from("trees")
+          .select("*")
+          .order("position_row", { ascending: true })
+          .order("position_col", { ascending: true }),
       ]);
 
       if (batchesResponse.error) throw batchesResponse.error;
@@ -77,7 +77,7 @@ const PicklingBatchesPage = () => {
       setBatches(batchesResponse.data || []);
       setTrees(treesResponse.data || []);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error("Error loading data:", error);
     } finally {
       setLoading(false);
     }
@@ -87,19 +87,19 @@ const PicklingBatchesPage = () => {
     if (formData.tree_ids.length === 0) return;
 
     try {
-      const { error } = await supabase
-        .from('pickling_batches')
-        .insert({
-          date: formData.date,
-          tree_ids: formData.tree_ids,
-          variety: formData.variety || null,
-          ripeness: formData.ripeness || null,
-          notes: formData.notes || null,
-          supplier: formData.supplier || null,
-          salt_percentage: formData.salt_percentage ? parseFloat(formData.salt_percentage) : null,
-          bruised: formData.bruised,
-          recipe_notes: formData.recipe_notes || null,
-        });
+      const { error } = await supabase.from("pickling_batches").insert({
+        date: formData.date,
+        tree_ids: formData.tree_ids,
+        variety: formData.variety || null,
+        ripeness: formData.ripeness || null,
+        notes: formData.notes || null,
+        supplier: formData.supplier || null,
+        salt_percentage: formData.salt_percentage
+          ? parseFloat(formData.salt_percentage)
+          : null,
+        bruised: formData.bruised,
+        recipe_notes: formData.recipe_notes || null,
+      });
 
       if (error) throw error;
 
@@ -107,30 +107,30 @@ const PicklingBatchesPage = () => {
       resetForm();
       loadData();
     } catch (error) {
-      console.error('Error creating batch:', error);
+      console.error("Error creating batch:", error);
     }
   };
 
   const resetForm = () => {
     setFormData({
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
       tree_ids: [],
-      variety: '',
-      ripeness: '',
-      notes: '',
-      supplier: '',
-      salt_percentage: '',
+      variety: "",
+      ripeness: "",
+      notes: "",
+      supplier: "",
+      salt_percentage: "",
       bruised: false,
-      recipe_notes: '',
+      recipe_notes: "",
     });
   };
 
   const toggleTreeSelection = (treeId: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tree_ids: prev.tree_ids.includes(treeId) 
-        ? prev.tree_ids.filter(id => id !== treeId)
-        : [...prev.tree_ids, treeId]
+      tree_ids: prev.tree_ids.includes(treeId)
+        ? prev.tree_ids.filter((id) => id !== treeId)
+        : [...prev.tree_ids, treeId],
     }));
   };
 
@@ -146,17 +146,16 @@ const PicklingBatchesPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Pickling Batches</h1>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="btn-primary"
-        >
+        <button onClick={() => setShowCreateForm(true)} className="btn-primary">
           Create New Batch
         </button>
       </div>
 
       {batches.length === 0 ? (
         <div className="card text-center py-8">
-          <div className="text-gray-500 mb-4">No pickling batches created yet.</div>
+          <div className="text-gray-500 mb-4">
+            No pickling batches created yet.
+          </div>
           <button
             onClick={() => setShowCreateForm(true)}
             className="btn-primary"
@@ -182,7 +181,9 @@ const PicklingBatchesPage = () => {
                 <div>Trees: {batch.tree_ids.length}</div>
                 {batch.variety && <div>Variety: {batch.variety}</div>}
                 {batch.ripeness && <div>Ripeness: {batch.ripeness}</div>}
-                {batch.salt_percentage && <div>Salt: {batch.salt_percentage}%</div>}
+                {batch.salt_percentage && (
+                  <div>Salt: {batch.salt_percentage}%</div>
+                )}
               </div>
               <div className="text-xs text-gray-500 mt-2">
                 Created: {new Date(batch.created_at).toLocaleDateString()}
@@ -198,13 +199,25 @@ const PicklingBatchesPage = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">Create Pickling Batch</h3>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Create Pickling Batch
+                </h3>
                 <button
                   onClick={() => setShowCreateForm(false)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -216,7 +229,9 @@ const PicklingBatchesPage = () => {
                     <input
                       type="date"
                       value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, date: e.target.value })
+                      }
                       className="form-input"
                     />
                   </div>
@@ -275,7 +290,12 @@ const PicklingBatchesPage = () => {
                       min="0"
                       max="100"
                       value={formData.salt_percentage}
-                      onChange={(e) => setFormData({ ...formData, salt_percentage: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          salt_percentage: e.target.value,
+                        })
+                      }
                       className="form-input"
                       placeholder="0.0"
                     />
@@ -285,7 +305,12 @@ const PicklingBatchesPage = () => {
                       <input
                         type="checkbox"
                         checked={formData.bruised}
-                        onChange={(e) => setFormData({ ...formData, bruised: e.target.checked })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            bruised: e.target.checked,
+                          })
+                        }
                         className="rounded border-gray-300 text-olive-600 focus:ring-olive-500"
                       />
                       <span className="text-sm text-gray-700">Bruised</span>
@@ -305,7 +330,9 @@ const PicklingBatchesPage = () => {
                 </div>
 
                 <div>
-                  <label className="form-label">Select Trees ({formData.tree_ids.length} selected)</label>
+                  <label className="form-label">
+                    Select Trees ({formData.tree_ids.length} selected)
+                  </label>
                   <div className="border border-gray-300 rounded-md p-3">
                     <TreeMap
                       selectionMode={true}
